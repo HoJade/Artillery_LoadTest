@@ -1,0 +1,31 @@
+config:
+  target: https://miraadmin.app.dev/auth/sign-in
+  engines:
+    playwright:
+      launchOptions:
+        headless: true
+  processor: "./tests/artillery/login.js"
+  phases:
+    # injects one user every second for 10 seconds
+    - name: constantArrival
+      duration: 10
+      arrivalRate: 1
+    # Pause
+    - name: pause
+      pause: 1
+    # ramp up the arrival rate of user from 1 to 15 over 10 seconds period
+    - name: Ramp Up
+      duration: 10
+      arrivalRate: 1
+      rampTo: 15
+    # Pause
+    - name: pause
+      pause: 5
+    # creates 15 users at a 10 seconds duration
+    - name: fixedArrival
+      duration: 10
+      arrivalCount: 15
+scenarios:
+  - name: MIRA_ADMIN_PORTAL
+    engine: playwright
+    testFunction: "artilleryScript"
