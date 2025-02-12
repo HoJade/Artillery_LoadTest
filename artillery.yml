@@ -4,28 +4,45 @@ config:
     playwright:
       launchOptions:
         headless: true
+      trace: {
+        screenshots: true,
+        snapshots: true,
+      }
+      timeout: 20000      # Timeout for Playwright browser session (20 seconds)
   processor: "./tests/artillery/login.js"
   phases:
-    # injects one user every second for 10 seconds
-    - name: constantArrival
-      duration: 10
-      arrivalRate: 1
-    # Pause
-    - name: pause
-      pause: 1
     # ramp up the arrival rate of user from 1 to 15 over 10 seconds period
     - name: Ramp Up
-      duration: 10
+      duration: 30
       arrivalRate: 1
       rampTo: 15
     # Pause
-    - name: pause
-      pause: 5
-    # creates 15 users at a 10 seconds duration
-    - name: fixedArrival
-      duration: 10
-      arrivalCount: 15
+    # - name: pause
+    #   pause: 5
+    # injects one user every second for 10 seconds (constantArrival)
+    - name: Sustain Load
+      duration: 30
+      arrivalRate: 1
+      timeout: 20     # Timeout entire phase after 20 seconds
+    # Pause
+    # - name: pause
+    #   pause: 5
+    # creates 15 users at a 10 seconds duration (fixedArrival)
+    # - name: Fixed Arrival
+    #   duration: 5
+    #   arrivalCount: 10
+    - name: Ramp Down
+      duration: 20
+      rampTo: 5
+  plugins:
+    metrics-by-endpoint:
+      enabled: true
+      suppressOutput: true
+      stripQueryString: true
 scenarios:
-  - name: MIRA_ADMIN_PORTAL
+  - name: MIRA_ADMIN_PORTAL Login Test
     engine: playwright
     testFunction: "artilleryScript"
+    tags: 
+      test-type: "trace-test"
+      feature: "login"
